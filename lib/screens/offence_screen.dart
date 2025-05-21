@@ -95,18 +95,14 @@ class _OffenseListScreenState extends State<OffenseListScreen> {
               final record = offenseRecords[index];
 
               Color tagColor;
-              switch (record["State"]) {
-                case "Pending":
-                  tagColor = Colors.red.shade400;
-                  break;
-                case "New":
-                  tagColor = Colors.amber.shade600;
-                  break;
-                case "Settled":
-                  tagColor = Colors.green.shade600;
-                  break;
-                default:
-                  tagColor = Colors.grey.shade400;
+              final isPaid = record["isPaid"];
+
+              if (isPaid == true) {
+                tagColor = Colors.green.shade600;
+              } else if (isPaid == false) {
+                tagColor = Colors.red.shade400;
+              } else {
+                tagColor = Colors.grey.shade400;
               }
 
               return Card(
@@ -121,12 +117,16 @@ class _OffenseListScreenState extends State<OffenseListScreen> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    "Date: ${record["Date"] ?? 'N/A'}\nOffense: ${record["Offense"] ?? 'N/A'}",
+                    "Date: ${record["date"] ?? 'N/A'}\nLocation: ${record["issueLocation"] ?? 'N/A'}",
                     style: const TextStyle(height: 1.4),
                   ),
                   trailing: Chip(
                     label: Text(
-                      record["type"] ?? "",
+                      isPaid == true
+                          ? "Paid"
+                          : isPaid == false
+                              ? "Unpaid"
+                              : "",
                       style: const TextStyle(color: Colors.white),
                     ),
                     backgroundColor: tagColor,

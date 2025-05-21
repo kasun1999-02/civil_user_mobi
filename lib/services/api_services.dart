@@ -78,4 +78,54 @@ class ApiService {
 
     return null;
   }
+
+  // Get all fines
+  Future<List<Map<String, dynamic>>?> getAllFines() async {
+    final url = Uri.parse('${baseUrl}fines/all');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return List<Map<String, dynamic>>.from(data['data']);
+      } else {
+        print('Failed to load all fines. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching all fines: $e');
+    }
+
+    return null;
+  }
+
+// Get a fine by ObjectId by first fetching all fines and filtering locally
+  Future<Map<String, dynamic>?> getFineById(String id) async {
+    final url = Uri.parse('${baseUrl}fines/all');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> fines = data['data'];
+
+        // Filter by matching ObjectId
+        final fine = fines.firstWhere(
+          (item) => item['_id'] == id,
+          orElse: () => null,
+        );
+
+        if (fine != null) {
+          return Map<String, dynamic>.from(fine);
+        } else {
+          print('Fine not found with ID: $id');
+        }
+      } else {
+        print('Failed to load all fines. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching fine by ID: $e');
+    }
+
+    return null;
+  }
 }
