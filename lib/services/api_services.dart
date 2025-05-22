@@ -128,4 +128,51 @@ class ApiService {
 
     return null;
   }
+
+  Future<Map<String, dynamic>> addUser({
+    required String licenseNo,
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    final url = Uri.parse('${baseUrl}users/auth/register');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'licenseNo': licenseNo,
+          'name': name,
+          'email': email,
+          'password': password,
+        }),
+      );
+      print('response: ${response.statusCode}');
+      if (response.statusCode == 201) {
+        // 201 Created is typical for registration
+        final data = jsonDecode(response.body);
+
+        return {
+          'success': true,
+          'message': 'User registered successfully',
+          'user': data['user'], // Contains the created user data
+        };
+      } else {
+        final errorResponse = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorResponse['message'] ?? 'Registration failed',
+          'statusCode': response.statusCode,
+        };
+      }
+    } catch (e) {
+      print('Registration error: $e');
+      return {
+        'success': false,
+        'message': 'Network error occurred',
+        'error': e.toString(),
+      };
+    }
+  }
 }
